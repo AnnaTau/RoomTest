@@ -66,14 +66,17 @@ public class Suite {
             fail();
         }
         assertTrue(onError);
+        onError = false;
         room.open();
         try {
             room.addObject(null);
         } catch (RoomClosedException e) {
             fail("Комната должна быть открыта");
         } catch (ObjectException e) {
-            e.printStackTrace();
+            onError = true;
+            assertEquals(e.getMessage(), "Нельзя добавить пустой обьект");
         }
+        assertTrue(onError);
     }
 
     @Test
