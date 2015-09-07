@@ -6,6 +6,8 @@ import RestTest.Room;
 import RestTest.exceptions.ObjectException;
 import RestTest.exceptions.RoomClosedException;
 import RestTest.exceptions.ServiceException;
+import com.sun.istack.internal.Nullable;
+import org.springframework.boot.json.GsonJsonParser;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.ClientHttpResponse;
@@ -21,6 +23,7 @@ import java.util.Map;
 public class RoomImpl implements Room {
     private String url;
     private RestTemplate template;
+    private ClientHttpResponse lastResp;
 
     public RoomImpl(String url) {
         this.url = url;
@@ -33,7 +36,7 @@ public class RoomImpl implements Room {
 
             @Override
             public void handleError(ClientHttpResponse clientHttpResponse) throws IOException {
-
+                lastResp = clientHttpResponse;
             }
         });
     }
@@ -67,17 +70,22 @@ public class RoomImpl implements Room {
     }
 
     public Item getObject() throws RoomClosedException {
-        ResponseEntity responseEntity = template.postForEntity(url="/getobject", null, String.class);
+        ResponseEntity responseEntity = null;
+        try {
+            responseEntity = template.postForEntity(url + "/getobject", null, Item.class);
+        } catch (Exception e){
+            responseEntity = template.postForEntity(url + "/getobject", null, String.class);
+        }
         HttpStatus status = responseEntity.getStatusCode();
         if (status.is2xxSuccessful()) {
             System.out.println("Ответ пришёл");
+            if (responseEntity.getBody() == null) return null;
             return (Item) responseEntity.getBody();
         }
-        if (status.value()==400) {
+        if (status.value() == 400) {
             System.out.println(responseEntity.getBody());
             throw new RoomClosedException(responseEntity.getBody().toString());
-        }
-        else throw new RuntimeException("Error from service "+status.value());
+        } else throw new RuntimeException("Error from service " + status.value());
     }
 
     public void addObject(Item object) throws RoomClosedException, ObjectException {

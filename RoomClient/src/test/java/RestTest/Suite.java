@@ -109,6 +109,56 @@ public class Suite {
     }
 
     @Test
+    public void getObject(){
+        room.close();
+        boolean onError = false;
+        try {
+            room.getObject();
+        } catch (RoomClosedException e) {
+            onError = true;
+            assertEquals(e.getMessage(), "Нельзя взять обьект, если дверь закрыта");
+        }
+        assertTrue(onError);
+        room.open();
+        boolean isEmpty = false;
+        try {
+            isEmpty = room.isEmpty();
+        } catch (RoomClosedException e) {
+            e.printStackTrace();
+        }
+        if (!isEmpty){
+            try {
+                room.removeObject();
+            } catch (RoomClosedException e) {
+                e.printStackTrace();
+            } catch (ObjectException e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            room.getObject();
+        } catch (RoomClosedException e) {
+            e.printStackTrace();
+        }
+        Item item = new Item("get", "Item");
+        try {
+            room.addObject(item);
+        } catch (RoomClosedException e) {
+            e.printStackTrace();
+        } catch (ObjectException e) {
+            e.printStackTrace();
+        }
+        Item item2 = null;
+        try {
+            item2 = room.getObject();
+        } catch (RoomClosedException e) {
+            fail();
+        }
+        assertNotNull(item2);
+        assertEquals(item, item2);
+    }
+
+    @Test
     public void subscribe(){
         room.open();
         boolean onError = false;
