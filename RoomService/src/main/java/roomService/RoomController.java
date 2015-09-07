@@ -50,7 +50,7 @@ public class RoomController implements Room {
     }
 
     @RequestMapping(value = "/addobject",method = {RequestMethod.POST})
-    public void addObject(@RequestBody Item object) throws RoomClosedException, ObjectException {
+    public void addObject(@RequestBody(required = false) Item object) throws RoomClosedException, ObjectException {
         if (!doorOpen) throw new RoomClosedException("Нельзя добавить обьект, если дверь закрыта");
         if (object==null) throw new ObjectException("Нельзя добавить пустой обьект");
         if (item!=null) throw new ObjectException("В комнате уже существует объект");
@@ -74,8 +74,8 @@ public class RoomController implements Room {
     }
 
     @RequestMapping(value = "/subscribe",method = {RequestMethod.POST})
-    public void subscribe(@RequestBody ListenerPath listenerPath) throws ServiceException {
-        if (listenerPath.getUrl()==null) throw new ServiceException("Пустой url");
+    public void subscribe(@RequestBody(required = false) ListenerPath listenerPath) throws ServiceException {
+        if (listenerPath==null || listenerPath.getUrl()==null) throw new ServiceException("Пустой url");
         listeners.add(new ListenerImpl(listenerPath.getUrl()));
         System.out.println("Подписка оформлена на адрес " + listenerPath.getUrl());
     }

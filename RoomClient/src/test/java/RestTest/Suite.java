@@ -26,6 +26,21 @@ public class Suite {
     @Test
     public void removeTest(){
         room.open();
+        boolean empty = false;
+        try {
+            empty = room.isEmpty();
+        } catch (RoomClosedException e) {
+            e.printStackTrace();
+        }
+        if (!empty){
+            try {
+                room.removeObject();
+            } catch (RoomClosedException e) {
+                e.printStackTrace();
+            } catch (ObjectException e) {
+                e.printStackTrace();
+            }
+        }
         boolean onError = false;
         try {
             room.removeObject();
@@ -77,11 +92,33 @@ public class Suite {
             assertEquals(e.getMessage(), "Нельзя добавить пустой обьект");
         }
         assertTrue(onError);
+        try {
+            room.addObject(new Item("2", "Two"));
+        } catch (RoomClosedException e) {
+            fail("Комната должна быть открыта");
+        } catch (ObjectException e) {
+            fail("Объект должен добавиться в комнату");
+        }
+        try {
+            room.removeObject();
+        } catch (RoomClosedException e) {
+            e.printStackTrace();
+        } catch (ObjectException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
     public void subscribe(){
         room.open();
+        boolean onError = false;
+        try {
+            room.subscribe(null);
+        } catch (ServiceException e) {
+            onError = true;
+            assertEquals(e.getMessage(), "Пустой url");
+        }
+        assertTrue(onError);
         try {
             room.subscribe(new ListenerPath("http://localhost:8081"));
         } catch (ServiceException e) {
