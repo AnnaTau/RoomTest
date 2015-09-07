@@ -181,14 +181,21 @@ public class Suite {
             e.printStackTrace();
         }
         Item item = new Item("key", "Name");
-        if (empty){
+        if (!empty){
             try {
-                room.addObject(item);
+                room.removeObject();
             } catch (RoomClosedException e) {
                 e.printStackTrace();
             } catch (ObjectException e) {
                 e.printStackTrace();
             }
+        }
+        try {
+            room.addObject(item);
+        } catch (RoomClosedException e) {
+            e.printStackTrace();
+        } catch (ObjectException e) {
+            e.printStackTrace();
         }
         ListenerController bean = starter.context.getBean(ListenerController.class);
         assertEquals(item, bean.getItem());
